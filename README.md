@@ -184,4 +184,5 @@ Distributed under the MIT License. See `project/LICENSE` for more information.
 
 ## Author
 
-- PiyushUCD
+- Piyush Patil
+- Dheeraj Chavan
