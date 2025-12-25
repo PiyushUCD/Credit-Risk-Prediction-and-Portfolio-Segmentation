@@ -50,16 +50,14 @@ What you get:
 
 ## Pipeline
 
-```mermaid
-flowchart LR
-  A[Load LendingClub data] --> B[Clean + select features]
-  B --> C[Train/test split]
-  C --> D[Pipeline: impute + one-hot + scale]
-  D --> E[Train models]
-  E --> F[Evaluate on holdout]
-  E --> G[Score full portfolio (50k)]
-  G --> H[Risk bands + portfolio report]
-```
+'''flowchart LR
+  A["Load LendingClub data"] --> B["Clean + select features"]
+  B --> C["Train/test split"]
+  C --> D["Preprocess: impute + one-hot + scale"]
+  D --> E["Train models"]
+  E --> F["Evaluate on holdout"]
+  E --> G["Score full portfolio (50k)"]
+  G --> H["Risk bands + portfolio report"]'''
 
 ---
 
