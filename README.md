@@ -50,7 +50,6 @@ What you get:
 
 ## Pipeline
 
-'''
 1. Load LendingClub data (50k sample)
 2. Clean + feature selection
 3. Train/test split
@@ -59,7 +58,7 @@ What you get:
 6. Evaluate on holdout
 7. Score full portfolio (50k)
 8. Risk bands + portfolio summary
-'''
+
 ---
 
 ## Dataset
