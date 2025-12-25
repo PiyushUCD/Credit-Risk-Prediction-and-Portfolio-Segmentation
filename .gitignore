@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.venv/
+venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Test / tooling
+.pytest_cache/
+.ruff_cache/
+
+# Streamlit
+.streamlit/
+
+# Data / outputs
+results/
+models/
+
+# Optionally commit the latest report (nice for GitHub portfolios)
+!results/REPORT.md
+
+# Keep the lightweight sample input for demos
+!data/sample_input.csv
+
+# Ignore any large/raw datasets you might drop in
+data/raw*
+data/*.parquet
+*.pkl
+*.joblib
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Kaggle
+.kaggle/
+kaggle.json

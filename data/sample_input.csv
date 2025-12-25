@@ -1,0 +1,11 @@
+loan_amnt,int_rate,installment,annual_inc,dti,delinq_2yrs,inq_last_6mths,open_acc,revol_bal,revol_util,total_acc,term,grade,emp_length,home_ownership,verification_status,purpose
+25000,7.5,150.31,100000,24.61,2,2,3,5000,20.69,30, 60 months,G,9 years,MORTGAGE,Not Verified,debt_consolidation
+20000,22.1,217.88,120000,24.54,0,3,5,20000,87.99,10, 60 months,E,6 years,RENT,Source Verified,major_purchase
+10000,22.1,115.43,100000,10.74,2,0,12,1500,49.24,30, 36 months,A,1 year,MORTGAGE,Verified,credit_card
+8000,13.9,150.08,120000,11.64,0,0,5,3200,63.87,40, 36 months,D,7 years,OWN,Not Verified,major_purchase
+15000,10.2,105.14,120000,21.75,0,2,5,5000,34.86,35, 36 months,D,1 year,MORTGAGE,Source Verified,small_business
+15000,10.2,108.84,120000,13.05,2,2,3,8000,44.51,30, 60 months,A,8 years,RENT,Verified,home_improvement
+5000,19.5,125.45,100000,21.65,0,3,15,20000,76.77,15, 60 months,D,4 years,MORTGAGE,Verified,home_improvement
+10000,19.5,126.66,120000,16.12,0,0,7,20000,30.45,20, 60 months,B,1 year,MORTGAGE,Not Verified,credit_card
+10000,16.8,118.35,120000,12.96,2,3,7,5000,20.49,40, 60 months,C,5 years,RENT,Not Verified,credit_card
+5000,19.5,131.51,35000,18.48,0,0,3,3200,87.72,20, 60 months,D,2 years,MORTGAGE,Source Verified,major_purchase

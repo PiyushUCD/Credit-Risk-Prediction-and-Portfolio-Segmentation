@@ -1,0 +1,6 @@
+# One-command install for local runs + Streamlit deployment.
+# If you only want the training pipeline, you can install:
+#   pip install -r requirements-core.txt
+
+-r requirements-core.txt
+-r requirements-app.txt

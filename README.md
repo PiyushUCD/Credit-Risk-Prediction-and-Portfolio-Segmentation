@@ -5,6 +5,9 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Streamlit](https://img.shields.io/badge/streamlit-app-ff4b4b.svg)](app.py)
 
+<!-- After you deploy on Streamlit Community Cloud, replace the link below with your app URL -->
+[![Deploy](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://share.streamlit.io/)
+
 Train a **Probability of Default (PD)** model (leakage-safe preprocessing), then convert PDs into **portfolio risk bands** with segment-level analytics.
 Includes a **Streamlit demo** that lets anyone upload a CSV and get scored outputs.
 
@@ -29,14 +32,16 @@ Includes a **Streamlit demo** that lets anyone upload a CSV and get scored outpu
 - Evaluate with ROC/PR curves, confusion matrix, threshold tuning, PD distribution
 - Segment the portfolio into risk bands and summarize **mix / observed default rate / expected-loss style proxy**
 
-**Example results from the included run**
-- Best model by ROC AUC: **Logistic Regression** (ROC AUC **0.700**, F1 **0.404**)
-- Concentration: the top risk bands (**High + Very High + Extreme**) represent **89.43%** of the portfolio and account for about **97.96%** of observed defaults in the sample output.
+**Example results (from a 50,000-loan run)**
+- Strong rank-ordering (ROC AUC around **0.70** is typical for this baseline feature set)
+- Portfolio segmentation highlights concentration in higher-risk bands, helping you prioritize reviews and monitoring
+
+> For your exact numbers, run `python main.py --sample-size 50000` and open `results/REPORT.md`.
 
 ### Model metrics (holdout evaluation)
 
 Metrics are computed on a **held‑out test split** (default: 20% of the loaded sample) to avoid optimistic results.
-Your exact numbers will vary by sample size, random seed, and feature availability.
+The project also reports **PR‑AUC**, **Brier score**, and a simple **defaults-captured@top‑10%** lift-style metric.
 
 - Test metrics CSV: `results/model_metrics.csv`
 - Best model pipeline: `models/best_credit_risk_model.pkl`
@@ -61,8 +66,17 @@ This is what drives the business-facing visuals and the risk-band summary.
 **ROC curves**  
 ![ROC](assets/plots/02_roc_curves.png)
 
+**Precision–Recall curves**  
+![PR](assets/plots/02b_precision_recall_curves.png)
+
 **Feature importance (model-dependent)**  
-![Feature Importance](assets/plots/feature_importance.png)
+![Feature Importance](assets/plots/04_feature_importance.png)
+
+**Calibration (reliability) curves**  
+![Calibration](assets/plots/07_calibration_curves.png)
+
+**SHAP global summary (optional)**  
+![SHAP](assets/plots/08_shap_summary.png)
 
 **PD distribution**  
 ![PD Distribution](assets/plots/06_probability_distribution.png)
@@ -88,10 +102,18 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
+If you only want the training pipeline (no Streamlit/SHAP):
+```bash
+pip install -r requirements-core.txt
+```
+
 ### 2) Run training + evaluation + segmentation
 ```bash
 python main.py --sample-size 50000
 ```
+
+This run also writes a GitHub-friendly report:
+- `results/REPORT.md`
 
 Update the README plots (copies `results/*.png` → `assets/plots/`):
 ```bash
@@ -110,10 +132,7 @@ python main.py --no-calibrate
 
 ## Streamlit app
 
-Install app extras:
-```bash
-pip install -r requirements.txt -r requirements-app.txt
-```
+The one-command install already includes Streamlit/SHAP via `requirements.txt`.
 
 Run:
 ```bash
@@ -124,7 +143,19 @@ The app supports:
 - Upload CSV → score PD → assign risk band → download scored dataset
 - Optional explainability (global importance; SHAP if installed)
 
----
+### Deploy on Streamlit Community Cloud
+
+1. Push this repo to GitHub
+2. Go to Streamlit Community Cloud → **Create app**
+3. Select your repo and set:
+   - **Main file path**: `app.py`
+4. Deploy 🎉
+
+Notes:
+- The Cloud builder installs from `requirements.txt` (this repo's file includes both core + app deps)
+- If you want a lighter deploy, edit `requirements.txt` to remove SHAP
+
+See: `docs/DEPLOY_STREAMLIT.md`
 
 ## Project structure
 
