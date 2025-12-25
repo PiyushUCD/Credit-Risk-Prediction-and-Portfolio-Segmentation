@@ -21,17 +21,20 @@ This project builds an end-to-end **Probability of Default (PD)** model and conv
 
 ## Table of contents
 
-- Background
-- Project
-- Pipeline
-- Dataset
-- Model performance
-- Deliverables
-- Getting started
-- Technologies
-- Top-directory layout
-- License
-- Author
+## Table of contents
+- [Background](#background)
+- [Project](#project)
+- [Pipeline](#pipeline)
+- [Dataset](#dataset)
+- [Model performance](#model-performance)
+- [Deliverables](#deliverables)
+- [Results (50,000-loan run)](#results-50000-loan-run)
+- [Getting started](#getting-started)
+- [Technologies](#technologies)
+- [Top-directory layout](#top-directory-layout)
+- [License](#license)
+- [Author](#author)
+
 
 ---
 
