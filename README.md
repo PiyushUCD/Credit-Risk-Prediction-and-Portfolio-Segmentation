@@ -100,7 +100,6 @@ python project/scripts/sync_assets.py --results-dir project/results --assets-dir
 
 ## Results (50,000-loan run)
 
-All plots use a **consistent color palette** so they look clean in GitHub.
 
 **Model comparison**  
 ![Model Performance](project/assets/plots/01_model_performance_comparison.png)

@@ -197,7 +197,7 @@ class Visualizer:
         else:
             return None
         # --- NEW: aggregate one-hot features back to original feature names ---
-        
+
         FRIENDLY = {
             "int_rate": "Interest rate (%)",
             "loan_amnt": "Loan amount",
@@ -241,7 +241,7 @@ class Visualizer:
 
         fig, ax = plt.subplots(figsize=(11, 6), constrained_layout=True)
         ax.barh(agg["label"], agg["importance"])  # readable labels
-        ax.set_title("Top Drivers (human-readable features)")
+        ax.set_title("Top Drivers")
         ax.set_xlabel("Importance (sum of |coefficients|)")
         ax.grid(True, alpha=0.25, axis="x")
 
