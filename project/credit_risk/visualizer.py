@@ -27,12 +27,31 @@ class Visualizer:
         self.output_dir = str(self.config.get("OUTPUT_DIR", "results"))
         os.makedirs(self.output_dir, exist_ok=True)
 
+        # Consistent, readable palette (explicit because the README screenshots matter).
+        # These match matplotlib's "tab:" colors but are specified to keep visuals stable.
+        self.colors = {
+            "primary": "#1f77b4",   # blue
+            "secondary": "#ff7f0e", # orange
+            "accent": "#2ca02c",    # green
+            "danger": "#d62728",    # red
+        }
+
+        # Risk band palette (low risk -> high risk)
+        self.risk_band_colors = [
+            "#2ca02c",  # Very Low
+            "#98df8a",  # Low
+            "#ffbb78",  # Medium
+            "#ff7f0e",  # High
+            "#ff9896",  # Very High
+            "#d62728",  # Extreme
+        ]
+
         # A readable default across platforms
         plt.rcParams.update(
             {
                 "figure.dpi": int(self.config.get("PLOTS_DPI", 300)),
                 "savefig.dpi": int(self.config.get("PLOTS_DPI", 300)),
-                "font.size": 11,
+                "font.size": 12,
             }
         )
 
@@ -51,8 +70,20 @@ class Visualizer:
         width = 0.38
 
         fig, ax = plt.subplots(figsize=(12, 6), constrained_layout=True)
-        ax.bar(x - width / 2, aucs, width, label="ROC AUC")
-        ax.bar(x + width / 2, f1s, width, label="F1 (chosen threshold)")
+        ax.bar(
+            x - width / 2,
+            aucs,
+            width,
+            label="ROC AUC",
+            color=self.colors["primary"],
+        )
+        ax.bar(
+            x + width / 2,
+            f1s,
+            width,
+            label="F1 (chosen threshold)",
+            color=self.colors["secondary"],
+        )
 
         ax.set_xticks(x)
         ax.set_xticklabels(models, rotation=20, ha="right")
@@ -66,6 +97,18 @@ class Visualizer:
 
     def plot_roc_curves(self, evaluation_results: dict[str, dict]) -> str:
         fig, ax = plt.subplots(figsize=(8, 6), constrained_layout=True)
+
+        # Stable color cycle across runs
+        ax.set_prop_cycle(
+            color=[
+                self.colors["primary"],
+                self.colors["secondary"],
+                self.colors["accent"],
+                self.colors["danger"],
+                "#9467bd",
+                "#8c564b",
+            ]
+        )
         for name, res in evaluation_results.items():
             roc = res.get("roc_curve", {})
             auc = float(res.get("metrics", {}).get("auc", float("nan")))
@@ -91,7 +134,7 @@ class Visualizer:
 
         cm = np.asarray(evaluation_results[best_model_name]["metrics"].get("confusion_matrix"))
         fig, ax = plt.subplots(figsize=(6.2, 5.4), constrained_layout=True)
-        im = ax.imshow(cm, interpolation="nearest")
+        im = ax.imshow(cm, interpolation="nearest", cmap="Blues")
 
         ax.set_title(f"Confusion Matrix — {best_model_name}")
         ax.set_xlabel("Predicted")
@@ -157,7 +200,7 @@ class Visualizer:
         imp_df = imp_df.sort_values("importance", ascending=False).head(int(top_n)).iloc[::-1]
 
         fig, ax = plt.subplots(figsize=(10, 7), constrained_layout=True)
-        ax.barh(imp_df["feature"], imp_df["importance"])
+        ax.barh(imp_df["feature"], imp_df["importance"], color=self.colors["primary"])
         ax.set_title(title)
         ax.set_xlabel("Importance")
         ax.grid(True, alpha=0.25, axis="x")
@@ -196,15 +239,19 @@ class Visualizer:
         risk = df["risk_band"].astype(str).to_list()
         legend_labels = [f"{r} — {p:.1f}%" for r, p in zip(risk, pct)]
 
-        fig = plt.figure(figsize=(18, 7), constrained_layout=True)
+        fig = plt.figure(figsize=(19, 7.5), constrained_layout=True)
         gs = fig.add_gridspec(1, 2, width_ratios=[1.15, 1.35])
         ax1 = fig.add_subplot(gs[0, 0])
         ax2 = fig.add_subplot(gs[0, 1])
 
+        # Colors must be stable for the README screenshots.
+        # Use one color per risk band, low-risk -> high-risk.
+        colors = self.risk_band_colors[: len(pct)]
         wedges, _ = ax1.pie(
             pct,
             startangle=90,
             labels=None,
+            colors=colors,
             wedgeprops=dict(width=0.42, edgecolor="white"),
         )
 
@@ -219,14 +266,27 @@ class Visualizer:
             loc="center left",
             bbox_to_anchor=(1.02, 0.5),
             frameon=False,
+            fontsize=12,
         )
         ax1.axis("equal")
 
         # Bars: predicted vs observed
         x = np.arange(len(df))
         width = 0.40
-        ax2.bar(x - width / 2, df["avg_predicted_pd"].astype(float), width, label="Avg Predicted PD")
-        ax2.bar(x + width / 2, df["actual_default_rate"].astype(float), width, label="Observed Default Rate")
+        ax2.bar(
+            x - width / 2,
+            df["avg_predicted_pd"].astype(float),
+            width,
+            label="Avg Predicted PD",
+            color=self.colors["primary"],
+        )
+        ax2.bar(
+            x + width / 2,
+            df["actual_default_rate"].astype(float),
+            width,
+            label="Observed Default Rate",
+            color=self.colors["secondary"],
+        )
         ax2.set_xticks(x)
         ax2.set_xticklabels(df["risk_band"].astype(str), rotation=20, ha="right")
         ax2.set_ylabel("Rate")
@@ -250,8 +310,20 @@ class Visualizer:
         mask_default = y == 1
         mask_nondefault = ~mask_default
 
-        ax.hist(probabilities[mask_nondefault], bins=30, alpha=0.7, label="Non-Default")
-        ax.hist(probabilities[mask_default], bins=30, alpha=0.7, label="Default")
+        ax.hist(
+            probabilities[mask_nondefault],
+            bins=30,
+            alpha=0.75,
+            label="Non-Default",
+            color=self.colors["primary"],
+        )
+        ax.hist(
+            probabilities[mask_default],
+            bins=30,
+            alpha=0.75,
+            label="Default",
+            color=self.colors["secondary"],
+        )
 
         ax.set_xlabel("Predicted PD")
         ax.set_ylabel("Frequency")
