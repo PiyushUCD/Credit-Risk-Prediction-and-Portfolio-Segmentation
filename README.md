@@ -50,15 +50,16 @@ What you get:
 
 ## Pipeline
 
-'''flowchart LR
-  A["Load LendingClub data"] --> B["Clean + select features"]
-  B --> C["Train/test split"]
-  C --> D["Preprocess: impute + one-hot + scale"]
-  D --> E["Train models"]
-  E --> F["Evaluate on holdout"]
-  E --> G["Score full portfolio (50k)"]
-  G --> H["Risk bands + portfolio report"]'''
-
+'''
+1. Load LendingClub data (50k sample)
+2. Clean + feature selection
+3. Train/test split
+4. Preprocess (impute + one-hot + scale)
+5. Train models
+6. Evaluate on holdout
+7. Score full portfolio (50k)
+8. Risk bands + portfolio summary
+'''
 ---
 
 ## Dataset
