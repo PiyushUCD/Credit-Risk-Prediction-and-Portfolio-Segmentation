@@ -7,7 +7,7 @@ from __future__ import annotations
 
 PROJECT_CONFIG: dict[str, object] = {
     "PROJECT_NAME": "Credit Risk Default Prediction & Portfolio Segmentation",
-    "VERSION": "1.3.1",
+    "VERSION": "1.3.2",
     # ----------------------------
     # Data settings
     # ----------------------------
@@ -17,8 +17,8 @@ PROJECT_CONFIG: dict[str, object] = {
     "TEST_SIZE": 0.20,
     "RANDOM_STATE": 42,
     # Output folders (these should generally be gitignored)
-    "OUTPUT_DIR": "results",
-    "MODELS_DIR": "models",
+    "OUTPUT_DIR": "project/results",
+    "MODELS_DIR": "project/models",
     # ----------------------------
     # Feature selection
     # ----------------------------
@@ -88,6 +88,15 @@ PROJECT_CONFIG: dict[str, object] = {
             "class": "GradientBoostingClassifier",
             "params": {"n_estimators": 300, "random_state": 42},
         },
+        "Balanced Random Forest (optional)": {
+            "class": "BalancedRandomForestClassifier",
+            "params": {
+                "n_estimators": 600,
+                "random_state": 42,
+                "n_jobs": -1,
+                "min_samples_leaf": 2,
+            },
+        },
     },
     # Cross-validation (used for more stable model selection)
     "USE_CV": True,
@@ -127,6 +136,8 @@ PROJECT_CONFIG: dict[str, object] = {
     "THRESHOLD_STRATEGY": "f1",
     "COST_FN": 5.0,
     "COST_FP": 1.0,
+    # Lift-style business metric: compute what fraction of defaults fall into top X% riskiest loans
+    "TOP_RISK_PERCENTILE": 0.10,
     # ----------------------------
     # Portfolio segmentation
     # ----------------------------
@@ -144,6 +155,7 @@ PROJECT_CONFIG: dict[str, object] = {
     # ----------------------------
     "COLOR_PALETTE": "viridis",
     "PLOTS_DPI": 300,
+    # Explainability (optional)
 }
 
 

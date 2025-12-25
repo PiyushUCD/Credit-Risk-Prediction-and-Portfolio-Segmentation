@@ -50,7 +50,9 @@ def save_json(data: Any, path: str) -> None:
         json.dump(data, f, indent=2, default=_to_jsonable)
 
 
-def format_metrics_table(evaluation_results: dict[str, dict]) -> pd.DataFrame:
+def format_metrics_table(
+    evaluation_results: dict[str, dict], *, test_n: int | None = None, total_n: int | None = None
+) -> pd.DataFrame:
     rows = []
     for name, res in evaluation_results.items():
         m = res["metrics"]
@@ -58,13 +60,18 @@ def format_metrics_table(evaluation_results: dict[str, dict]) -> pd.DataFrame:
             {
                 "model": name,
                 "auc": m["auc"],
-                "pr_auc": m["pr_auc"],
                 "f1": m["f1"],
                 "precision": m["precision"],
                 "recall": m["recall"],
                 "accuracy": m["accuracy"],
                 "threshold": m["threshold"],
                 "threshold_strategy": m["threshold_strategy"],
+                "defaults_captured@top_pct": m.get("defaults_captured@top_pct"),
             }
         )
-    return pd.DataFrame(rows).sort_values("auc", ascending=False)
+    df = pd.DataFrame(rows).sort_values("auc", ascending=False)
+    if test_n is not None:
+        df.insert(1, "test_n", int(test_n))
+    if total_n is not None:
+        df.insert(1, "total_n", int(total_n))
+    return df

@@ -5,10 +5,10 @@ Run:
 
 What it does:
 - Upload Lending Club CSV (raw) OR a feature-only CSV
-- Load the trained model (models/best_credit_risk_model.pkl) OR train quickly in-app
+- Load the trained model (project/models/best_credit_risk_model.pkl) OR train quickly in-app
 - Predict probability of default (PD)
 - Segment the portfolio into risk bands
-- Show basic explainability (feature importance + optional SHAP for a single row)
+- Show basic explainability (feature importance)
 """
 
 from __future__ import annotations
@@ -20,11 +20,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import streamlit as st
-from explainability import (
-    global_feature_importance,
-    try_shap_local_explanation,
-    unwrap_estimator,
-)
+from credit_risk.explainability import (global_feature_importance,
+    unwrap_estimator,)
 
 from credit_risk.config import PROJECT_CONFIG
 from credit_risk.data_loader import DataLoader
@@ -54,10 +51,6 @@ def _is_raw_lendingclub(df: pd.DataFrame, cfg: dict) -> bool:
 def main() -> None:
     cfg = dict(PROJECT_CONFIG)
 
-    st.set_page_config(
-        page_title="Credit Risk Dashboard", page_icon="📊", layout="wide"
-    )
-
     st.title("Credit Risk Default Prediction & Portfolio Segmentation")
     st.caption(
         "Upload a dataset → predict PD → segment into risk bands → export results."
@@ -66,7 +59,7 @@ def main() -> None:
     with st.sidebar:
         st.header("Settings")
         models_dir = st.text_input(
-            "Models directory", value=str(cfg.get("MODELS_DIR", "models"))
+            "Models directory", value=str(cfg.get("MODELS_DIR", "project/models"))
         )
         # Kept for future extension (e.g., saving scored files server-side). The app uses download buttons today.
         st.text_input(
@@ -237,7 +230,7 @@ def main() -> None:
     else:
         st.info("Could not extract feature importance from this model wrapper.")
 
-    st.write("**Optional: SHAP local explanation**")
+    st.write("**Optional:  local explanation**")
     idx = st.number_input(
         "Row index to explain",
         min_value=0,
@@ -249,7 +242,7 @@ def main() -> None:
         "Background sample size", min_value=50, max_value=1000, value=200, step=50
     )
 
-    if st.button("Explain row with SHAP"):
+    if st.button("Explain row with "):
         X_row = X.iloc[[int(idx)]].copy()
         bg = X.sample(
             min(int(bg_n), len(X)), random_state=int(cfg.get("RANDOM_STATE", 42))
@@ -257,14 +250,14 @@ def main() -> None:
 
         # Use base estimator (Pipeline) for explainability when possible
         if hasattr(base, "named_steps"):
-            shap_df, msg = try_shap_local_explanation(base, X_row=X_row, background=bg)
+            _df, msg = try__local_explanation(base, X_row=X_row, background=bg)
             if msg:
                 st.warning(msg)
-            if shap_df is not None:
-                st.dataframe(shap_df, use_container_width=True)
+            if _df is not None:
+                st.dataframe(_df, use_container_width=True)
         else:
             st.warning(
-                "SHAP explanation requires a Pipeline with preprocess/model steps."
+                " explanation requires a Pipeline with preprocess/model steps."
             )
 
     with st.expander("About"):
@@ -272,7 +265,7 @@ def main() -> None:
             """        **What this app demonstrates**
 - Scoring a portfolio with a Probability of Default (PD) model
 - Segmenting results into risk bands for decisioning/monitoring
-- Basic explainability (feature importance + optional SHAP)
+- Basic explainability (feature importance + optional )
 
 **Tip:** run the full pipeline locally with `python main.py` to train/evaluate and save a model to `models/`.
 """

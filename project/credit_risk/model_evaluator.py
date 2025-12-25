@@ -6,10 +6,8 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import (
     accuracy_score,
-    average_precision_score,
     confusion_matrix,
     f1_score,
-    precision_recall_curve,
     precision_score,
     recall_score,
     roc_auc_score,
@@ -49,7 +47,6 @@ class ModelEvaluator:
         y_pred_05 = (y_proba >= 0.5).astype(int)
 
         auc = roc_auc_score(y_test, y_proba)
-        pr_auc = average_precision_score(y_test, y_proba)
 
         # Optimize threshold according to config
         threshold, threshold_reason = self._select_threshold(y_test.values, y_proba)
@@ -57,7 +54,6 @@ class ModelEvaluator:
 
         metrics = {
             "auc": float(auc),
-            "pr_auc": float(pr_auc),
             "accuracy@0.5": float(accuracy_score(y_test, y_pred_05)),
             "precision@0.5": float(precision_score(y_test, y_pred_05, zero_division=0)),
             "recall@0.5": float(recall_score(y_test, y_pred_05, zero_division=0)),
@@ -71,17 +67,29 @@ class ModelEvaluator:
             "confusion_matrix": confusion_matrix(y_test, y_pred_opt),
         }
 
+        # Business-friendly lift style metric: what fraction of defaults are captured
+        # by the top X% highest-risk loans.
+        top_pct = float(self.config.get("TOP_RISK_PERCENTILE", 0.10))
+        k = max(1, int(len(y_proba) * top_pct))
+        order = np.argsort(-y_proba)
+        top_idx = order[:k]
+        defaults_total = int(np.sum(y_test.values))
+        defaults_top = int(np.sum(y_test.values[top_idx]))
+        metrics["top_risk_percentile"] = float(top_pct)
+        metrics["defaults_captured@top_pct"] = (
+            float(defaults_top / defaults_total) if defaults_total > 0 else float("nan")
+        )
+
         # Curves (for plots)
         fpr, tpr, roc_thr = roc_curve(y_test, y_proba)
-        pr, rc, pr_thr = precision_recall_curve(y_test, y_proba)
 
         return {
             "model": model,
+            "_y_true": y_test.values,
             "probabilities": y_proba,
             "predictions": y_pred_opt,
             "metrics": metrics,
             "roc_curve": {"fpr": fpr, "tpr": tpr, "thresholds": roc_thr},
-            "pr_curve": {"precision": pr, "recall": rc, "thresholds": pr_thr},
         }
 
     def _select_threshold(

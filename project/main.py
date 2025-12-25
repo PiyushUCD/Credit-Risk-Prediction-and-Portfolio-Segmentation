@@ -160,7 +160,9 @@ def main() -> None:
     # 3) Evaluate
     evaluator = ModelEvaluator(cfg)
     eval_results = evaluator.evaluate(train_results)
-    metrics_df = format_metrics_table(eval_results)
+    metrics_df = format_metrics_table(
+        eval_results, test_n=len(train_results.y_test), total_n=len(loaded.df)
+    )
 
     # 4) Choose best model key for scoring (prefer calibrated if available)
     best_key = train_results.best_model_name
@@ -173,7 +175,11 @@ def main() -> None:
     best_probs_test = eval_results[best_key]["probabilities"]
 
     # Full-portfolio probabilities (ALL rows: e.g., 50,000 loans)
-    scoring_model = train_results.best_model if use_calibrated else train_results.models[train_results.best_model_name]
+    scoring_model = (
+        train_results.best_model
+        if use_calibrated
+        else train_results.models[train_results.best_model_name]
+    )
     X_all = loaded.df[train_results.feature_cols]
     y_all = loaded.df[train_results.target_col]
     best_probs_all = scoring_model.predict_proba(X_all)[:, 1]
@@ -198,6 +204,19 @@ def main() -> None:
     )
     save_json(cfg, config_path)
 
+    # 6b) Markdown report for GitHub (tables + plots)
+    report_path = os.path.join(output_dir, "REPORT.md")
+    from credit_risk.reporter import write_markdown_report
+
+    write_markdown_report(
+        out_path=report_path,
+        cfg=cfg,
+        metrics_df=metrics_df,
+        portfolio_df=portfolio.portfolio_table,
+        best_model_name=best_key,
+        plots_dir=output_dir,
+    )
+
     # Save best model (pipeline or calibrated wrapper)
     save_joblib(
         train_results.best_model, os.path.join(models_dir, "best_credit_risk_model.pkl")
@@ -207,8 +226,7 @@ def main() -> None:
     viz = Visualizer(cfg)
     viz.plot_model_comparison(eval_results)
     viz.plot_roc_curves(eval_results)
-    viz.plot_pr_curves(eval_results)
-    viz.plot_confusion_matrix(eval_results, train_results.best_model_name)
+    viz.plot_confusion_matrix(eval_results, best_key)
     viz.plot_feature_importance(train_results.best_model)
     viz.plot_portfolio(portfolio.portfolio_table)
     viz.plot_probability_distribution(y_all, best_probs_all)

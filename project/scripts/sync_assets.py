@@ -1,7 +1,7 @@
 """Copy latest generated plots from results/ into assets/plots for README.
 
 Usage:
-    python scripts/sync_assets.py --results-dir results --assets-dir assets/plots
+    python scripts/sync_assets.py --results-dir project/results --assets-dir project/assets/plots
 """
 
 from __future__ import annotations
@@ -16,9 +16,9 @@ DEFAULT_PLOTS = [
     "01_model_performance_comparison.png",
     "02_roc_curves.png",
     "03_confusion_matrix.png",
+    "04_feature_importance.png",
     "05_portfolio_analysis.png",
     "06_probability_distribution.png",
-    "feature_importance.png",
 ]
 
 

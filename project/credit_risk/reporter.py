@@ -39,13 +39,10 @@ def write_markdown_report(
     plots = {
         "Model comparison": "01_model_performance_comparison.png",
         "ROC curves": "02_roc_curves.png",
-        "PR curves": "02b_precision_recall_curves.png",
         "Confusion matrix": "03_confusion_matrix.png",
         "Feature importance": "04_feature_importance.png",
         "Portfolio segmentation": "05_portfolio_analysis.png",
         "PD distribution": "06_probability_distribution.png",
-        "Calibration": "07_calibration_curves.png",
-        "SHAP summary (optional)": "08_shap_summary.png",
     }
 
     # Keep tables compact for markdown
@@ -56,8 +53,6 @@ def write_markdown_report(
             "total_n",
             "test_n",
             "auc",
-            "pr_auc",
-            "brier",
             "f1",
             "precision",
             "recall",

@@ -34,6 +34,15 @@ SKLEARN_MODEL_REGISTRY = {
     "GradientBoostingClassifier": GradientBoostingClassifier,
 }
 
+# Optional: imbalanced-learn models (used for stronger imbalanced baselines)
+try:
+    from imblearn.ensemble import BalancedRandomForestClassifier  # type: ignore
+
+    SKLEARN_MODEL_REGISTRY["BalancedRandomForestClassifier"] = BalancedRandomForestClassifier
+except Exception:
+    # imbalanced-learn not installed; the rest of the project still works
+    pass
+
 
 @dataclass
 class TrainResults:
@@ -136,6 +145,14 @@ class ModelTrainer:
         for name, cfg in models_cfg.items():
             model_class_name = str(cfg["class"])
             params = dict(cfg.get("params", {}))
+            # Allow optional models that depend on extra packages
+            if model_class_name not in SKLEARN_MODEL_REGISTRY:
+                print(
+                    f"⚠️ Skipping model '{name}' because '{model_class_name}' is not available. "
+                    "Install optional dependencies if you want to include it."
+                )
+                continue
+
             pipe = self._make_pipeline(preprocessor, model_class_name, params)
 
             # Optional hyperparameter tuning (uses CV on training split)
@@ -176,6 +193,11 @@ class ModelTrainer:
                 pipe.fit(X_train, y_train)
 
             trained[name] = pipe
+
+        if not trained:
+            raise ValueError(
+                "No models were trained. Check PROJECT_CONFIG['MODELS'] and your installed dependencies."
+            )
 
         # Choose best model by CV AUC if enabled, otherwise by test AUC will happen in evaluator.
         best_model_name = (

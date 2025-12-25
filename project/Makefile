@@ -1,4 +1,4 @@
-.PHONY: install install-dev format lint test run app sync-assets
+.PHONY: install install-dev format lint test run app sync-assets make-gif
 
 install:
 	python -m pip install --upgrade pip
@@ -23,8 +23,11 @@ run:
 	python main.py
 
 app:
-	pip install -r requirements.txt -r requirements-app.txt
+	pip install -r requirements.txt
 	streamlit run app.py
 
 sync-assets:
 	python scripts/sync_assets.py
+
+make-gif:
+	python scripts/make_demo_gif.py

@@ -21,7 +21,16 @@ venv/
 # Data / outputs
 results/
 models/
-data/
+
+# Optionally commit the latest report (nice for GitHub portfolios)
+!results/REPORT.md
+
+# Keep the lightweight sample input for demos
+!data/sample_input.csv
+
+# Ignore any large/raw datasets you might drop in
+data/raw*
+data/*.parquet
 *.pkl
 *.joblib
 
