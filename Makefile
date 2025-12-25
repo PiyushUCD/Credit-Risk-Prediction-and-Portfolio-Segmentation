@@ -1,4 +1,4 @@
-.PHONY: install install-dev format lint test run app
+.PHONY: install install-dev format lint test run app sync-assets
 
 install:
 	python -m pip install --upgrade pip
@@ -25,3 +25,6 @@ run:
 app:
 	pip install -r requirements.txt -r requirements-app.txt
 	streamlit run app.py
+
+sync-assets:
+	python scripts/sync_assets.py

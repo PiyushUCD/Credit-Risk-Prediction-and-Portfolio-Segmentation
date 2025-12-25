@@ -33,27 +33,25 @@ Includes a **Streamlit demo** that lets anyone upload a CSV and get scored outpu
 - Best model by ROC AUC: **Logistic Regression** (ROC AUC **0.700**, F1 **0.404**)
 - Concentration: the top risk bands (**High + Very High + Extreme**) represent **89.43%** of the portfolio and account for about **97.96%** of observed defaults in the sample output.
 
-### Model metrics (sample run)
+### Model metrics (holdout evaluation)
 
-| Model | ROC AUC | F1 | N |
-|---|---|---|---|
-| Logistic Regression | 0.700 | 0.404 | 10000 |
-| Random Forest | 0.680 | 0.072 | 10000 |
+Metrics are computed on a **held‑out test split** (default: 20% of the loaded sample) to avoid optimistic results.
+Your exact numbers will vary by sample size, random seed, and feature availability.
 
+- Test metrics CSV: `results/model_metrics.csv`
+- Best model pipeline: `models/best_credit_risk_model.pkl`
 
-### Portfolio segmentation summary (sample run)
+### Portfolio segmentation summary (full portfolio)
 
-| Risk band | Loans | Portfolio % | Avg PD | Observed default rate |
-|---|---|---|---|---|
-| Very Low | 4 | 0.040 | 0.035 | 0.000 |
-| Low | 46 | 0.460 | 0.123 | 0.000 |
-| Medium | 1007 | 10.070 | 0.212 | 0.038 |
-| High | 1959 | 19.590 | 0.301 | 0.085 |
-| Very High | 3173 | 31.730 | 0.425 | 0.162 |
-| Extreme | 3811 | 38.110 | 0.638 | 0.300 |
+Portfolio segmentation is computed on **the full loaded portfolio** (e.g., **50,000 loans** when `--sample-size 50000`).
+This is what drives the business-facing visuals and the risk-band summary.
 
+- Portfolio table CSV: `results/portfolio_analysis.csv`
+- Loan-level output (if enabled): `results/portfolio_loan_level.csv`
 
----
+> Tip: After you run `python main.py --sample-size 50000`, open the CSVs above and the plots in `results/`.
+> You can paste your latest tables back into this README if you want the repo to always display your most recent run.
+
 
 ## Results preview (generated artifacts)
 
@@ -92,7 +90,13 @@ pip install -r requirements.txt
 
 ### 2) Run training + evaluation + segmentation
 ```bash
-python main.py
+python main.py --sample-size 50000
+```
+
+Update the README plots (copies `results/*.png` → `assets/plots/`):
+```bash
+python scripts/sync_assets.py
+# or: make sync-assets
 ```
 
 Useful flags:

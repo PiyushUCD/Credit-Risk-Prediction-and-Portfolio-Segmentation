@@ -7,7 +7,7 @@ from __future__ import annotations
 
 PROJECT_CONFIG: dict[str, object] = {
     "PROJECT_NAME": "Credit Risk Default Prediction & Portfolio Segmentation",
-    "VERSION": "1.3.0",
+    "VERSION": "1.3.1",
     # ----------------------------
     # Data settings
     # ----------------------------

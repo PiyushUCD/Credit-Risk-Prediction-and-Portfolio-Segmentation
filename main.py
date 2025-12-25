@@ -162,25 +162,36 @@ def main() -> None:
     eval_results = evaluator.evaluate(train_results)
     metrics_df = format_metrics_table(eval_results)
 
-    # 4) Choose best model key for portfolio (prefer calibrated if available)
+    # 4) Choose best model key for scoring (prefer calibrated if available)
     best_key = train_results.best_model_name
+    use_calibrated = False
     if f"{best_key} (Calibrated)" in eval_results:
         best_key = f"{best_key} (Calibrated)"
+        use_calibrated = True
 
-    best_probs = eval_results[best_key]["probabilities"]
+    # Test-set probabilities (used for evaluation plots like ROC / CM)
+    best_probs_test = eval_results[best_key]["probabilities"]
 
-    # 5) Portfolio segmentation
+    # Full-portfolio probabilities (ALL rows: e.g., 50,000 loans)
+    scoring_model = train_results.best_model if use_calibrated else train_results.models[train_results.best_model_name]
+    X_all = loaded.df[train_results.feature_cols]
+    y_all = loaded.df[train_results.target_col]
+    best_probs_all = scoring_model.predict_proba(X_all)[:, 1]
+
+    # 5) Portfolio segmentation (use FULL portfolio for business segmentation)
     analyzer = PortfolioAnalyzer(cfg)
-    portfolio = analyzer.segment(best_probs, train_results.y_test)
+    portfolio = analyzer.segment(best_probs_all, y_all)
 
     # 6) Save artifacts
     metrics_path = os.path.join(output_dir, "model_metrics.csv")
     portfolio_path = os.path.join(output_dir, "portfolio_analysis.csv")
+    portfolio_loan_path = os.path.join(output_dir, "portfolio_loan_level.csv")
     summary_path = os.path.join(output_dir, "project_summary.txt")
     config_path = os.path.join(output_dir, "run_config.json")
 
     save_csv(metrics_df, metrics_path, index=False)
     save_csv(portfolio.portfolio_table, portfolio_path, index=False)
+    save_csv(portfolio.loan_level, portfolio_loan_path, index=False)
     save_text(
         write_summary(cfg, metrics_df, portfolio.portfolio_table, best_key),
         summary_path,
@@ -200,7 +211,7 @@ def main() -> None:
     viz.plot_confusion_matrix(eval_results, train_results.best_model_name)
     viz.plot_feature_importance(train_results.best_model)
     viz.plot_portfolio(portfolio.portfolio_table)
-    viz.plot_probability_distribution(train_results.y_test, best_probs)
+    viz.plot_probability_distribution(y_all, best_probs_all)
 
     print("\n✅ Done. Outputs written to:")
     print(f"   • {output_dir}/")

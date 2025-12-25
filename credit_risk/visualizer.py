@@ -183,20 +183,42 @@ class Visualizer:
         return path
 
     def plot_portfolio(self, portfolio_table: pd.DataFrame) -> str:
-        # Donut chart + bar chart
-        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
+        # Donut chart + bar chart (clean layout for GitHub)
+        # Expect these columns from PortfolioAnalyzer:
+        #   risk_band, portfolio_percentage, avg_predicted_pd, actual_default_rate, loan_count
+        n_loans = None
+        for col in ["loan_count", "loans", "Loans", "count"]:
+            if col in portfolio_table.columns:
+                n_loans = int(portfolio_table[col].sum())
+                break
 
-        ax1.pie(
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5), constrained_layout=True)
+
+        # --- Donut: use legend to avoid label overlap
+        wedges, _, _ = ax1.pie(
             portfolio_table["portfolio_percentage"],
-            labels=portfolio_table["risk_band"],
+            labels=None,
             autopct="%1.1f%%",
             startangle=90,
             wedgeprops=dict(width=0.4, edgecolor="white"),
         )
-        ax1.set_title("Portfolio Composition by Risk Band")
+        title = "Portfolio Composition by Risk Band"
+        if n_loans is not None:
+            title += f" (N={n_loans:,})"
+        ax1.set_title(title)
+        ax1.legend(
+            wedges,
+            portfolio_table["risk_band"],
+            title="Risk band",
+            loc="center left",
+            bbox_to_anchor=(1.0, 0.5),
+            frameon=False,
+        )
+        ax1.axis("equal")
 
+        # --- Bars: align and order
         x = np.arange(len(portfolio_table))
-        width = 0.35
+        width = 0.38
         ax2.bar(
             x - width / 2,
             portfolio_table["avg_predicted_pd"],
@@ -207,17 +229,16 @@ class Visualizer:
             x + width / 2,
             portfolio_table["actual_default_rate"],
             width,
-            label="Actual Default Rate",
+            label="Observed Default Rate",
         )
         ax2.set_xticks(x)
-        ax2.set_xticklabels(portfolio_table["risk_band"], rotation=45, ha="right")
+        ax2.set_xticklabels(portfolio_table["risk_band"], rotation=30, ha="right")
         ax2.set_ylabel("Rate")
-        ax2.set_title("Predicted vs Actual Default by Risk Band")
-        ax2.grid(True, alpha=0.3, axis="y")
+        ax2.set_title("Predicted vs Observed Default by Risk Band")
+        ax2.grid(True, alpha=0.25, axis="y")
         ax2.legend()
 
         path = os.path.join(self.output_dir, "05_portfolio_analysis.png")
-        fig.tight_layout()
         fig.savefig(
             path, dpi=int(self.config.get("PLOTS_DPI", 300)), bbox_inches="tight"
         )
@@ -227,19 +248,26 @@ class Visualizer:
     def plot_probability_distribution(
         self, y_true: pd.Series, probabilities: np.ndarray
     ) -> str:
-        fig, ax = plt.subplots(figsize=(10, 5))
-        ax.hist(probabilities[y_true == 0], bins=30, alpha=0.7, label="Non-Default")
-        ax.hist(probabilities[y_true == 1], bins=30, alpha=0.7, label="Default")
+        n = int(len(probabilities))
+        fig, ax = plt.subplots(figsize=(10, 5), constrained_layout=True)
+
+        # Two distributions: default vs non-default
+        mask_default = (y_true == 1).values if hasattr(y_true, "values") else (y_true == 1)
+        mask_nondefault = ~mask_default
+
+        ax.hist(probabilities[mask_nondefault], bins=30, alpha=0.7, label="Non-Default")
+        ax.hist(probabilities[mask_default], bins=30, alpha=0.7, label="Default")
+
         ax.set_xlabel("Predicted PD")
         ax.set_ylabel("Frequency")
-        ax.set_title("Predicted Probability Distribution")
-        ax.grid(True, alpha=0.3)
+        ax.set_title(f"Predicted Probability Distribution (N={n:,})")
+        ax.grid(True, alpha=0.25)
         ax.legend()
 
         path = os.path.join(self.output_dir, "06_probability_distribution.png")
-        fig.tight_layout()
         fig.savefig(
             path, dpi=int(self.config.get("PLOTS_DPI", 300)), bbox_inches="tight"
         )
         plt.close(fig)
         return path
+
