@@ -20,8 +20,6 @@ This project builds an end-to-end **Probability of Default (PD)** model and conv
 ---
 
 ## Table of contents
-
-## Table of contents
 - [Background](#background)
 - [Project](#project)
 - [Pipeline](#pipeline)
