@@ -1,0 +1,4 @@
+# Optional dependencies for the Streamlit demo app and explainability.
+
+streamlit>=1.34
+shap>=0.44

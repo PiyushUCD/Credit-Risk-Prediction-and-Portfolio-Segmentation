@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.venv/
+venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Test / tooling
+.pytest_cache/
+.ruff_cache/
+
+# Streamlit
+.streamlit/
+
+# Data / outputs
+results/
+models/
+data/
+*.pkl
+*.joblib
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Kaggle
+.kaggle/
+kaggle.json
