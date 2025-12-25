@@ -15,6 +15,7 @@ Plots included (intentionally minimal / recruiter-friendly):
 from __future__ import annotations
 
 import os
+import re
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -195,14 +196,53 @@ class Visualizer:
             title = "Logistic Regression |coef|"
         else:
             return None
+        # --- NEW: aggregate one-hot features back to original feature names ---
+        
+        FRIENDLY = {
+            "int_rate": "Interest rate (%)",
+            "loan_amnt": "Loan amount",
+            "installment": "Monthly installment",
+            "grade": "Credit grade",
+            "term": "Loan term",
+            "home_ownership": "Home ownership",
+            "purpose": "Loan purpose",
+            "emp_length": "Employment length",
+            "verification_status": "Verification status",
+            "annual_inc": "Annual income",
+            "dti": "Debt-to-income (DTI)",
+            "revol_util": "Revolving utilization (%)",
+         }
+        
+        def base_name(feat: str) -> str:
+            # drop ColumnTransformer prefixes like num__/cat__
+            f = re.sub(r"^(num__|cat__)", "", feat)
+                # handle known multiword bases first
+            for multi in ["home_ownership", "verification_status", "emp_length"]:
+                if f.startswith(multi + "_"):
+                     return multi
+                # default: take token before first underscore (grade_G -> grade)
+            return f.split("_", 1)[0]
+        imp_df = pd.DataFrame({"feature": feature_names, "importance": np.abs(importances)})
+        imp_df["base"] = imp_df["feature"].apply(base_name)
+        
+        # Sum importance across one-hot columns (e.g., all grade_* -> grade)
+        agg = imp_df.groupby("base", as_index=False)["importance"].sum()
+        agg["label"] = agg["base"].map(FRIENDLY).fillna(agg["base"])
 
-        imp_df = pd.DataFrame({"feature": feature_names, "importance": importances})
-        imp_df = imp_df.sort_values("importance", ascending=False).head(int(top_n)).iloc[::-1]
+        # OPTIONAL: keep only business-readable core features (remove “weird” ones)
+        KEEP = {
+         "int_rate", "loan_amnt", "installment", "grade", "term",
+         "annual_inc", "dti", "revol_util", "purpose", "home_ownership",
+         "emp_length", "verification_status"
+        }
+        
+        agg = agg[agg["base"].isin(KEEP)]
+        agg = agg.sort_values("importance", ascending=False).head(int(top_n)).iloc[::-1]
 
-        fig, ax = plt.subplots(figsize=(10, 7), constrained_layout=True)
-        ax.barh(imp_df["feature"], imp_df["importance"], color=self.colors["primary"])
-        ax.set_title(title)
-        ax.set_xlabel("Importance")
+        fig, ax = plt.subplots(figsize=(11, 6), constrained_layout=True)
+        ax.barh(agg["label"], agg["importance"])  # readable labels
+        ax.set_title("Top Drivers (human-readable features)")
+        ax.set_xlabel("Importance (sum of |coefficients|)")
         ax.grid(True, alpha=0.25, axis="x")
 
         return self._save(fig, "04_feature_importance.png")
