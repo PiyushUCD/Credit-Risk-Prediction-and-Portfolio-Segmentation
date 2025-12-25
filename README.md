@@ -37,8 +37,6 @@ This project builds an end-to-end **Probability of Default (PD)** model and conv
 
 ## Background
 
-## Background
-
 **Credit risk modelling** estimates the likelihood that a borrower will **default** on a loan. A common approach is to train a supervised model that outputs a **Probability of Default (PD)** for each loan. PD is especially valuable because it provides a continuous risk score, not just a yes/no decision.
 
 In real lending workflows, PD is usually combined with business rules to answer questions like:
