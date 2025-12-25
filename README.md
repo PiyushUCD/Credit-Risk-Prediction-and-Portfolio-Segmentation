@@ -217,5 +217,5 @@ Distributed under the MIT License. See `project/LICENSE` for more information.
 
 ## Author
 
-- Piyush Patil
-- Dheeraj Chavan
+- **Piyush Patil**
+- **Dheeraj Chavan**
