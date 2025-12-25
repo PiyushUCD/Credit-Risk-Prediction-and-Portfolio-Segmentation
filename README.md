@@ -12,7 +12,7 @@ This project builds an end-to-end **Probability of Default (PD)** model and conv
 - **Delivery:** export a report, CSV outputs, and plots that are easy to share with stakeholders
 - **App layer:** optional **Streamlit** app to score new CSV files using the trained pipeline
 
-**Why this is useful:** PD is not the final answer—teams use it to drive actions like approval thresholds, pricing tiers, exposure limits, and portfolio monitoring. This project demonstrates how to go from a PD model to an interpretable segmentation that can be communicated to both technical and non-technical audiences.
+**Why this is useful:** PD is not the final answer-teams use it to drive actions like approval thresholds, pricing tiers, exposure limits, and portfolio monitoring. This project demonstrates how to go from a PD model to an interpretable segmentation that can be communicated to both technical and non-technical audiences.
 
 
 > This project runs on **50,000 loans** by default and generates the visuals from that run.
